@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <algorithm>
 
+// Получение рандомных чисел
 int getRandomNumber(int min, int max) {
 	// srand(time(NULL));
 
@@ -13,16 +14,15 @@ int getRandomNumber(int min, int max) {
 	return num;
 }
 
-void printArr(unsigned int arr[], unsigned const int size) {
+// Вывод массива
+void printArr(int arr[], const int size) {
 	for (int i = 0; i < size; i++) {
 		std::cout << i << ": " << arr[i] << std::endl;
 	}
 }
 
-void bubbleSort(unsigned int arr[], unsigned const int size) {
-	long count = 0;
-	srand(time(0));
-	// double start_time = clock();
+// Пузырьковая сортировка
+void bubbleSort(int arr[], const int size, long long &count) {
 	for (int i = 0; i < size; ++i) {
 		for (int j = 0; j < size - 1; ++j) {
 			if (arr[j] > arr[j + 1]) {
@@ -33,17 +33,9 @@ void bubbleSort(unsigned int arr[], unsigned const int size) {
 			}
 		}
 	}
-	// double end_time = clock();
-	// double deltaTime = end_time - start_time;
-
-	std::cout << "Permutations: " << count << std::endl;
-	std::cout << "Execution time: " << clock() / 1000.0 << std::endl;
 }
 
-void insertionSort(unsigned int arr[], unsigned const int size) {
-	long count = 0;
-	srand(time(0));
-
+void insertionSort(int arr[], const int size, long long& count) {
 	for (int i = 1; i < size; ++i) {
 		int tmp = arr[i];
 		int j = i - 1;
@@ -54,12 +46,9 @@ void insertionSort(unsigned int arr[], unsigned const int size) {
 			count++;
 		}
 	}
-
-	std::cout << "Permutations: " << count << std::endl;
-	std::cout << "Execution time: " << clock() / 1000.0 << std::endl;
 }
 
-int partition(unsigned int a[], int start, int end, unsigned long &count) {
+int partition(int a[], int start, int end, long long &count) {
 	int pivot = a[end];
 	int pIndex = start;
 
@@ -76,8 +65,7 @@ int partition(unsigned int a[], int start, int end, unsigned long &count) {
 	return pIndex;
 }
 
-void quickSort(unsigned int a[], int start, int end, unsigned long &count) {
-	srand(time(0));
+void quickSort(int a[], int start, int end, long long &count) {
 	if (start >= end) {
 		return;
 	}
@@ -85,8 +73,6 @@ void quickSort(unsigned int a[], int start, int end, unsigned long &count) {
 	int pivot = partition(a, start, end, count);
 	quickSort(a, start, pivot - 1, count);
 	quickSort(a, pivot + 1, end, count);
-
-	
 }
 
 void choicesSort(unsigned int arr[], unsigned const int size, unsigned long &count) {
@@ -104,69 +90,131 @@ void choicesSort(unsigned int arr[], unsigned const int size, unsigned long &cou
 	}
 }
 
-void merge(int* arr[], int* left[], int leftSize, int* right[], int rightSize) {
-	int i = 0, j = 0, k = 0;
-	while (i < leftSize && j < rightSize) {
-		if (left[i] <= right[j]) {
-			arr[k++] = left[i++];
+void merge(int array[], int const left, int const mid, int const right, long long &count) {
+	auto const subArrayOne = mid - left + 1;
+	auto const subArrayTwo = right - mid;
+
+	auto* leftArray = new int[subArrayOne],
+		* rightArray = new int[subArrayTwo];
+
+	for (auto i = 0; i < subArrayOne; i++)
+		leftArray[i] = array[left + i];
+	for (auto j = 0; j < subArrayTwo; j++)
+		rightArray[j] = array[mid + 1 + j];
+
+	auto indexOfSubArrayOne = 0,
+		indexOfSubArrayTwo = 0;
+
+	int indexOfMergedArray = left;
+
+	while (indexOfSubArrayOne < subArrayOne && indexOfSubArrayTwo < subArrayTwo) {
+		if (leftArray[indexOfSubArrayOne] <= rightArray[indexOfSubArrayTwo]) {
+			array[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
+			indexOfSubArrayOne++;
+			++count;
 		}
 		else {
-			arr[k++] = right[j++];
+			array[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
+			indexOfSubArrayTwo++;
+			++count;
 		}
+		indexOfMergedArray++;
 	}
-	while (i < leftSize) {
-		arr[k++] = left[i++];
+
+	while (indexOfSubArrayOne < subArrayOne) {
+		array[indexOfMergedArray] = leftArray[indexOfSubArrayOne];
+		indexOfSubArrayOne++;
+		indexOfMergedArray++;
+		++count;
 	}
-	while (j < rightSize) {
-		arr[k++] = right[j++];
+
+	while (indexOfSubArrayTwo < subArrayTwo) {
+		array[indexOfMergedArray] = rightArray[indexOfSubArrayTwo];
+		indexOfSubArrayTwo++;
+		indexOfMergedArray++;
+		++count;
 	}
 }
 
-//Доделать
-void recursiveMergeSort(int* arr[], int left, int right) {
-	if (left >= right) {
+void mergeSort(int array[], int const begin, int const end, long long &count) {
+	if (begin >= end)
 		return;
-	}
 
-	int mid = left + (right - left) / 2;
-	recursiveMergeSort(arr, left, mid);
-	recursiveMergeSort(arr, mid + 1, right);
-
-	int* leftArr = new int[mid - left + 1];
-	int* rightArr = new int[right - mid];
-
-	for (int i = 0; i < mid - left; i++) {
-		int* number = arr[left + i];
-		leftArr[i] = number;
-		leftArr[i] = arr[left + i];
-	}
-	for (int i = 0; i < right - mid; i++) {
-		rightArr[i] = arr[mid + 1 + i];
-	}
-	merge(arr, &leftArr, mid - left + 1, &rightArr, right - mid);
+	auto mid = begin + (end - begin) / 2;
+	mergeSort(array, begin, mid, count);
+	mergeSort(array, mid + 1, end, count);
+	merge(array, begin, mid, end, count);
 }
+
+void sheakerSort(int* mass, int size, long long &count) {
+	int left = 0, right = size - 1;
+	int flag = 1;
+	while ((left < right) && flag > 0) {
+		flag = 0;
+		for (int i = left; i < right; i++) {
+			if (mass[i] > mass[i + 1]) {
+				double t = mass[i];
+				mass[i] = mass[i + 1];
+				mass[i + 1] = t;
+				flag = 1;
+				++count;
+			}
+		}
+		right--;
+		for (int i = right; i > left; i--) {
+			if (mass[i - 1] > mass[i]) {
+				double t = mass[i];
+				mass[i] = mass[i - 1];
+				mass[i - 1] = t;
+				flag = 1;
+				++count;
+			}
+		}
+		left++;
+	}
+}
+
+void swap(int* xp, int* yp, long long &count) {
+	int temp = *xp;
+	*xp = *yp;
+	*yp = temp;
+	++count;
+}
+
+void selectionSort(int arr[], int n, long long &count) {
+	int i, j, min_idx;
+	for (i = 0; i < n - 1; i++) { 
+		min_idx = i;
+		for (j = i + 1; j < n; j++)
+			if (arr[j] < arr[min_idx])
+				min_idx = j;
+		swap(&arr[min_idx], &arr[i], count);
+	}
+}
+
 
 int main() {
-	unsigned const int size = 50;
-	unsigned int arr[size];
+	const int size = 100000;
+	int arr[size];
 	int* arrMerge = new int[size];
-	unsigned long count = 0;
+	long long count = 0;
 
 	// Заполнение массива рандомными числами
 	for (int i = 0; i < size; ++i) {
-		unsigned int number = getRandomNumber(1, 100);
+		unsigned int number = getRandomNumber(1, 100000);
 		arr[i] = number;
 	}
 
 	std::cout << "Array before sorting: " << std::endl;
 	printArr(arr, size);
 
-	recursiveMergeSort(&arrMerge, 0, size - 1);
-	std::cout << "Permutations: " << count << std::endl;
-	std::cout << "Execution time: " << clock() / 1000.0 << std::endl;
-
+	sheakerSort(arr, size, count);
+	
 	std::cout << "Array after sorting: " << std::endl;
 	printArr(arr, size);
+
+	std::cout << "Permutations: " << count << std::endl;
+	std::cout << "Execution time: " << clock() / 1000.0 << std::endl;
 
 	return 0;
 }
